@@ -106,11 +106,27 @@ defmodule ColorUtils do
   end
 
   def rgb_to_hex(%RGB{} = rgb) do
-    hex = (1 <<< 24) + (rgb.red <<< 16) + (rgb.green <<< 8) + rgb.blue
-          |> Integer.to_string(16)
-          |> String.slice(1..1500)
+    hex =
+      [rgb.red, rgb.green, rgb.blue]
+      |> Enum.map(& number_to_hex(&1))
+      |> Enum.join()
 
     "#" <> hex
+  end
+
+  defp number_to_hex(i) when is_integer(i) do
+    if i == 0 do
+      "00"
+    else
+      Integer.to_charlist(i, 16)
+    end
+  end
+  defp number_to_hex(i) when is_float(i) do
+    if i == 0 do
+      "00"
+    else
+      Integer.to_charlist(round(i), 16)
+    end
   end
 
   defp pivot_rgb(n) do
