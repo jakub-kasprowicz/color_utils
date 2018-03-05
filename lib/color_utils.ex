@@ -198,7 +198,7 @@ defmodule ColorUtils do
     c_max = Enum.max(rgb_values_list)
     c_min = Enum.min(rgb_values_list)
     c_delta = c_max - c_min
-    hue = get_hue(rgb_values, c_delta, c_max) |> trunc()
+    hue = get_hue(rgb_values, c_delta, c_max) |> round()
     saturation = get_saturation(c_delta, c_max)
     # Return hsv where value is a %
     %HSV{hue: hue, saturation: saturation, value: Float.round((c_max * 100), 1)}
@@ -237,11 +237,31 @@ defmodule ColorUtils do
       (c_max == blue) ->
         ((red - green) / c_delta) + 4
       (c_max == red) ->
-        val = ((green - blue) / c_delta) |> trunc()
-        rem(val, 6)
+        ((green - blue) / c_delta)
+        |> get_hue_multiplier_for_greater_red()
       (c_max == green) ->
         ((blue - red) / c_delta) + 2
     end
+  end
+
+  defp get_hue_multiplier_for_greater_red(val) do
+    int_part = get_hue_int_part(val)
+    dec_part = val - int_part
+
+    val = (rem(int_part, 6) + dec_part)
+
+    cond do
+      (val >= 0) -> val
+      (val < 0) -> 6 + val
+    end
+  end
+
+  defp get_hue_int_part(val) do
+    cond do
+      (val >= 0) -> Float.floor(val)
+      (val < 0) -> Float.ceil(val)
+    end
+    |> trunc()
   end
 
   defp get_saturation(_c_delta, 0) do
