@@ -234,13 +234,13 @@ defmodule ColorUtils do
     c_delta, c_max) do
     60 * cond do
       (c_delta == 0) -> 0
+      (c_max == blue) ->
+        ((red - green) / c_delta) + 4
       (c_max == red) ->
         val = ((green - blue) / c_delta) |> trunc()
         rem(val, 6)
       (c_max == green) ->
         ((blue - red) / c_delta) + 2
-      (c_max == blue) ->
-        ((red - green) / c_delta) + 4
     end
   end
 
